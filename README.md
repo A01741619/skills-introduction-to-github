@@ -96,19 +96,18 @@ flowchart LR
 
 | Actor | Event / Action | Componente | Responsabilidades del Componente |
 |---|---|---|---|
-| Usuario | Accede a la aplicación vía browser | C1: Web Application | Renderizar la interfaz de usuario; enviar peticiones HTTP al Load Balancer; mostrar listas de tareas, estados y notificaciones |
-| Usuario | Envía comandos de tareas por Telegram | C2: Telegram Bot | Recibir mensajes de Telegram; traducir comandos a llamadas HTTP; retornar respuestas formateadas al usuario |
-| Load Balancer | Recibe tráfico de C1 y C2 | C3: Load Balancer (OCI) | Distribuir tráfico a la instancia con menor carga; redirigir tráfico ante fallo de nodo; ejecutar health checks periódicos; aplicar auto-scaling según CPU > 70% |
-| OCI Infrastructure | Detecta alta carga (CPU > 70%) | C3: Load Balancer (OCI) | Activar políticas de escalado horizontal; lanzar o terminar instancias según demanda |
-| Task API | Recibe petición de usuario | C5: Auth Service | Validar tokens de autenticación; gestionar sesiones; verificar permisos de acceso a recursos |
-| Task API | Consulta o modifica tareas | C4: Task API (App Instances) | Manejar CRUD de tareas; coordinar acceso a Cache y Base de Datos; encolar trabajos en background bajo alta carga; responder en < 1.5s bajo carga normal, < 3s bajo carga pico |
-| Task API | Lee datos frecuentemente consultados | C6: Redis Cache | Almacenar en memoria datos de usuarios y tareas frecuentes; aplicar patrón Cache-Aside; retornar respuestas en < 1s para datos cacheados |
-| Task API | Escribe o lee datos persistentes | C8: Primary Database (OCI) | Persistir todos los datos de tareas y usuarios; aplicar particionamiento por user_id; procesar escrituras y lecturas críticas; replicar datos a la réplica |
-| Task API | Lee datos bajo carga alta | C9: Replica Database (OCI) | Atender consultas de solo lectura; reducir carga en el Primary DB; mantenerse sincronizada vía replicación |
-| Task API | Recibe tarea no crítica en alta carga | C7: Background Job Scheduler | Recibir y encolar tareas no críticas (e.g., notificaciones, reportes); posponer ejecución hasta que carga del sistema sea < 60%; ejecutar procesos diferidos de forma asíncrona |
-| OCI Infrastructure | Envía ping periódico a instancias | C10: Health Monitor | Ejecutar health checks cada N segundos; marcar instancias como unhealthy tras 3 fallos consecutivos; notificar al Load Balancer para excluir nodos; solicitar reinicio automático de instancias caídas |
-| Administrador | Monitorea el estado del sistema | C10: Health Monitor | Exponer métricas de salud, latencia y uso de recursos; generar alertas ante anomalías |
-
+| Usuario | Ingresa a la aplicación desde el navegador | C1: Web Application | Mostrar la interfaz al usuario, permitir la visualización de tareas y enviar las solicitudes necesarias al sistema para consultar o actualizar información. |
+| Usuario | Gestiona tareas mediante comandos en Telegram | C2: Telegram Bot | Recibir los mensajes enviados por el usuario, interpretar los comandos y devolver respuestas claras y organizadas dentro de Telegram. |
+| Load Balancer | Gestiona las solicitudes entrantes del sistema | C3: Load Balancer (OCI) | Distribuir el tráfico entre las instancias disponibles, detectar fallos en los nodos y redirigir las solicitudes para mantener la disponibilidad del sistema. |
+| OCI Infrastructure | Detecta incrementos en el uso de recursos | C3: Load Balancer (OCI) | Ajustar automáticamente la cantidad de instancias activas según la demanda del sistema para mantener un rendimiento estable. |
+| Task API | Verifica la autenticidad de los usuarios | C5: Auth Service | Validar usuarios y sesiones activas, así como controlar que cada usuario tenga permisos para acceder a determinados recursos. |
+| Task API | Procesa operaciones relacionadas con tareas | C4: Task API (App Instances) | Gestionar la creación, consulta, actualización y eliminación de tareas, además de coordinar la comunicación con la caché y la base de datos. |
+| Task API | Solicita información de acceso frecuente | C6: Redis Cache | Guardar temporalmente información consultada con frecuencia para acelerar las respuestas y reducir la carga de la base de datos. |
+| Task API | Guarda y recupera información persistente | C8: Primary Database (OCI) | Almacenar de forma segura la información principal del sistema, incluyendo usuarios y tareas, asegurando la integridad de los datos. |
+| Task API | Realiza consultas de solo lectura | C9: Replica Database (OCI) | Atender consultas de lectura para disminuir la carga de la base de datos principal y mejorar el rendimiento general. |
+| Task API | Envía procesos secundarios para ejecución diferida | C7: Background Job Scheduler | Administrar tareas que no requieren ejecución inmediata, como notificaciones o reportes, procesándolas de manera asíncrona. |
+| OCI Infrastructure | Supervisa constantemente el estado de las instancias | C10: Health Monitor | Monitorear la salud de las instancias, detectar fallos y notificar al sistema para reemplazar o reiniciar servicios cuando sea necesario. |
+| Administrador | Consulta el estado general de la plataforma | C10: Health Monitor | Proporcionar métricas y alertas relacionadas con el rendimiento, disponibilidad y uso de recursos del sistema. |
 ---
 
 ## 4. Technical Partitioning
