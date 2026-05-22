@@ -39,66 +39,55 @@ Los componentes resultantes son:
 ## 2. Flow Diagram – Actions/Actors Approach
 
 ```mermaid
-flowchart TD
+flowchart LR
     %% Actors
-    USER([👤 Usuario])
-    ADMIN([🔧 Administrador])
-    OCI_INFRA([☁️ OCI Infrastructure])
+    USR([Usuario])
+    OCI([OCI Infrastructure])
+    ADM([Administrador])
 
-    %% Presentation Layer
-    WEB[C1: Web Application]
-    BOT[C2: Telegram Bot]
+    %% Components
+    C1[C1: Web Application]
+    C2[C2: Telegram Bot]
+    C3[C3: Load Balancer OCI]
+    C4[C4: Task API]
+    C5[C5: Auth Service]
+    C6[C6: Redis Cache]
+    C7[C7: Background Job Scheduler]
+    C8[C8: Primary Database]
+    C9[C9: Replica Database]
+    C10[C10: Health Monitor]
 
-    %% Infrastructure
-    LB[C3: Load Balancer]
-    HEALTH[C10: Health Monitor]
+    %% Usuario flows
+    USR -->|Accede vía browser| C1
+    USR -->|Envía cmd Telegram| C2
 
-    %% Application Layer
-    API[C4: Task API\nApp Instances x3]
-    AUTH[C5: Auth Service]
-    SCHEDULER[C7: Background Job Scheduler]
+    %% Hacia Load Balancer
+    C1 -->|HTTPS| C3
+    C2 -->|HTTPS| C3
 
-    %% Data Layer
-    CACHE[C6: Redis Cache]
-    DBPRIMARY[C8: Primary Database]
-    DBREPLICA[C9: Replica DB - Read Only]
+    %% Load Balancer → Task API
+    C3 -->|Distribuye tráfico| C4
 
-    %% User flows
-    USER -->|Accede vía browser| WEB
-    USER -->|Envía comandos| BOT
-    WEB -->|HTTP Request| LB
-    BOT -->|HTTP Request| LB
+    %% Task API → servicios
+    C4 -->|Valida token| C5
+    C4 -->|Cache-Aside| C6
+    C4 -->|SQL write/read| C8
+    C4 -->|SQL read-only| C9
+    C4 -->|Encola tareas| C7
 
-    %% Load Balancer routes
-    LB -->|Distribuye tráfico| API
-    LB -->|Redirige si falla nodo| API
+    %% Replicación
+    C8 -->|Async replication| C9
 
-    %% Auth flow
-    API -->|Valida token| AUTH
-    AUTH -->|Verifica credenciales| DBPRIMARY
-
-    %% Task API data flow
-    API -->|Consulta datos frecuentes| CACHE
-    CACHE -->|Cache miss - lee| DBPRIMARY
-    API -->|Escribe datos| DBPRIMARY
-    API -->|Lee datos bajo carga| DBREPLICA
-
-    %% DB Replication
-    DBPRIMARY -->|Replicación| DBREPLICA
-
-    %% Background Jobs
-    API -->|Encola tareas no críticas| SCHEDULER
-    SCHEDULER -->|Ejecuta diferido| DBPRIMARY
+    %% OCI flows
+    OCI -->|CPU mayor 70% auto-scaling| C3
+    OCI -->|Ping periódico| C10
 
     %% Health Monitor
-    OCI_INFRA -->|Activa health checks| HEALTH
-    HEALTH -->|Ping/Echo a instancias| API
-    HEALTH -->|Reporta instancias caídas| LB
-    HEALTH -->|Reinicia instancias fallidas| OCI_INFRA
+    C10 -->|Health check| C4
+    C10 -->|Nodo unhealthy| C3
 
-    %% Admin
-    ADMIN -->|Monitorea métricas| HEALTH
-    ADMIN -->|Configura políticas de scaling| LB
+    %% Administrador
+    ADM -->|Monitorea sistema| C10
 ```
 
 ---
