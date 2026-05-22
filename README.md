@@ -4,9 +4,9 @@ Gustavo García Téllez · Juan Pablo Torres · María Guadalupe Soto Acosta · 
 
 ---
 
-## 1. Component Identification process and Rationale
+## 1. Proceso de Identificación de Componentes y Justificación
 
-### Methodology: Actions/Actors Approach
+### Metodología: Enfoque de Actions/Actors Approach
 
 Nosotros elegimos la metodología Actors/Actions Approach, debido a que identificamos que nuestro sistema de gestión de tareas cuenta con distintos actores, como usuarios, bots e infraestructura en OCI, entre otros. Este método nos permite organizar las funciones de cada elemento, facilitando la identificación de las responsabilidades de cada componente sin ambigüedades.
 
@@ -36,7 +36,7 @@ Los componentes resultantes son:
 | C10 | Health Monitor |
 
 ---
-## 2. Flow Diagram – Actions/Actors Approach
+## 2. Diagrama de flujo – Actions/Actors Approach
 
 ```mermaid
 flowchart LR
@@ -94,7 +94,7 @@ flowchart LR
 
 ## 3. Component Table
 
-| Actor | Event / Action | Componente | Responsabilidades del Componente |
+| Actor | Evento / Acción | Componente | Responsabilidades del Componente |
 |---|---|---|---|
 | Usuario | Ingresa a la aplicación desde el navegador | C1: Web Application | Mostrar la interfaz al usuario, permitir la visualización de tareas y enviar las solicitudes necesarias al sistema para consultar o actualizar información. |
 | Usuario | Gestiona tareas mediante comandos en Telegram | C2: Telegram Bot | Recibir los mensajes enviados por el usuario, interpretar los comandos y devolver respuestas claras y organizadas dentro de Telegram. |
