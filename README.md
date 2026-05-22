@@ -92,7 +92,7 @@ flowchart LR
 
 ---
 
-## 3. Component Table
+## 3. Tabla de componentes
 
 | Actor | Evento / Acción | Componente | Responsabilidades del Componente |
 |---|---|---|---|
@@ -110,144 +110,95 @@ flowchart LR
 | Administrador | Consulta el estado general de la plataforma | C10: Health Monitor | Proporcionar métricas y alertas relacionadas con el rendimiento, disponibilidad y uso de recursos del sistema. |
 ---
 
-## 4. Technical Partitioning
+## 4. Partición técnica
 
-> Organizado por **capas técnicas**: Presentation, Load Balancing, Application, Caching y Data. Refleja cómo la tecnología está distribuida en la infraestructura.
+> La partición tecnica la dividicom en capas, lo que nos permite comprender de mkjejor manera cada capa de nuestra arquitectura y facilita la escabilidad.
 
 ```mermaid
-graph TB
-    subgraph PRESENTATION ["🖥️ Presentation Layer"]
-        C1[C1: Web Application\nReact / HTML-CSS-JS]
-        C2[C2: Telegram Bot\nPython / Telegram API]
+graph LR
+    subgraph PRESENTATION["Presentation Layer"]
+        C1[C1: Web Application]
+        C2[C2: Telegram Bot]
     end
 
-    subgraph LOADBALANCER ["⚖️ Load Balancer Layer"]
-        C3[C3: Load Balancer\nOCI Load Balancer\nDynamic Routing · Health Checks · Auto-scaling]
-        C10[C10: Health Monitor\nOCI Monitoring · Ping/Echo · Circuit Breaker]
+    subgraph LB["Load Balancing Layer"]
+        C3[C3: Load Balancer OCI]
     end
 
-    subgraph APPLICATION ["⚙️ Application Layer"]
-        C4A[C4a: Task API\nInstance 1]
-        C4B[C4b: Task API\nInstance 2]
-        C4C[C4c: Task API\nInstance 3]
-        C5[C5: Auth Service\nJWT Validation · Session Management]
-        C7[C7: Background Job Scheduler\nAsynchronous Queue · Priority Scheduling]
+    subgraph APPLICATION["Application Layer"]
+        C4[C4: Task API]
+        C5[C5: Auth Service]
+        C7[C7: Background Job Scheduler]
+        C10[C10: Health Monitor]
     end
 
-    subgraph CACHING ["⚡ Caching Layer"]
-        C6[C6: Redis Cache\nCache-Aside Pattern · In-Memory Store]
+    subgraph CACHING["Caching Layer"]
+        C6[C6: Redis Cache]
     end
 
-    subgraph DATA ["🗄️ Data Layer"]
-        C8[C8: Primary Database\nOCI DB · Key-Based Partitioning · Read-Write]
-        C9[C9: Replica Database\nOCI DB · Read Only · Replication Target]
+    subgraph DATA["Data Layer"]
+        C8[C8: Primary Database]
+        C9[C9: Replica Database]
     end
 
-    %% Interactions
     C1 -->|HTTPS| C3
     C2 -->|HTTPS| C3
-
-    C3 -->|Routes request\nLeast Load / Response Time| C4A
-    C3 -->|Routes request| C4B
-    C3 -->|Routes request| C4C
-    C10 -->|Health status| C3
-    C10 -.->|Monitors| C4A
-    C10 -.->|Monitors| C4B
-    C10 -.->|Monitors| C4C
-
-    C4A -->|Validates token| C5
-    C4B -->|Validates token| C5
-    C4C -->|Validates token| C5
-
-    C4A -->|Cache lookup / store| C6
-    C4B -->|Cache lookup / store| C6
-    C4C -->|Cache lookup / store| C6
-
-    C4A -->|Write / critical read| C8
-    C4B -->|Write / critical read| C8
-    C4C -->|Write / critical read| C8
-
-    C4A -->|Read-only queries| C9
-    C4B -->|Read-only queries| C9
-    C4C -->|Read-only queries| C9
-
-    C6 -->|Cache miss fallback| C8
-
-    C4A -->|Enqueue background tasks| C7
-    C7 -->|Deferred write| C8
-
-    C8 -->|Replication| C9
-    C5 -->|Credential lookup| C8
+    C3 -->|Distribuye tráfico| C4
+    C4 -->|Valida token| C5
+    C4 -->|Encola tareas| C7
+    C4 -->|Cache-Aside| C6
+    C4 -->|SQL write/read| C8
+    C4 -->|SQL read-only| C9
+    C8 -->|Async replication| C9
+    C10 -->|Health check| C4
+    C10 -->|Nodo unhealthy| C3
 ```
 
 ---
 
-## 5. Domain Partitioning
+## 5. Partición de dominio
 
-> Organizado por **dominios de negocio**: User Interface, Infrastructure, Task Management, Identity & Access, Data Management y Background Processing. Refleja cómo las responsabilidades funcionales están agrupadas.
+> Esta esta organizadfa por dominios, lo que divide nuestra arquitectura en diferentes modulos independientes y centrar la logica principal en otra seccion, lon que tambien fdacilita la esccabilidad.
 
 ```mermaid
-graph TB
-    subgraph UI_DOMAIN ["🌐 User Interface Domain"]
-        C1[C1: Web Application\nTask views · User dashboard · Forms]
-        C2[C2: Telegram Bot\nCommand interface · Notifications]
+graph LR
+    subgraph UI["User Interface Domain"]
+        C1[C1: Web Application]
+        C2[C2: Telegram Bot]
     end
 
-    subgraph INFRA_DOMAIN ["🏗️ Infrastructure & Routing Domain"]
-        C3[C3: Load Balancer\nTraffic routing · Failover · Auto-scaling]
-        C10[C10: Health Monitor\nAvailability tracking · Failure detection]
+    subgraph INFRA["Infrastructure Domain"]
+        C3[C3: Load Balancer OCI]
+        C10[C10: Health Monitor]
     end
 
-    subgraph TASK_DOMAIN ["✅ Task Management Domain"]
-        C4A[C4a: Task API – Instance 1\nCreate · Read · Update · Delete tasks]
-        C4B[C4b: Task API – Instance 2\nCreate · Read · Update · Delete tasks]
-        C4C[C4c: Task API – Instance 3\nCreate · Read · Update · Delete tasks]
+    subgraph TASK["Task Management Domain"]
+        C4[C4: Task API]
     end
 
-    subgraph AUTH_DOMAIN ["🔐 Identity & Access Domain"]
-        C5[C5: Auth Service\nAuthentication · Authorization · Session]
+    subgraph BG["Background Processing Domain"]
+        C7[C7: Background Job Scheduler]
     end
 
-    subgraph DATA_DOMAIN ["💾 Data Management Domain"]
-        C6[C6: Redis Cache\nFrequently accessed task & user data]
-        C8[C8: Primary Database\nSource of truth · Partitioned by user_id]
-        C9[C9: Replica Database\nRead scaling · High availability]
+    subgraph IAM["Identity and Access Domain"]
+        C5[C5: Auth Service]
     end
 
-    subgraph BG_DOMAIN ["🔄 Background Processing Domain"]
-        C7[C7: Job Scheduler\nDeferred tasks · Non-critical processes]
+    subgraph DATA["Data Management Domain"]
+        C6[C6: Redis Cache]
+        C8[C8: Primary Database]
+        C9[C9: Replica Database]
     end
 
-    %% Cross-domain interactions
-    C1 -->|User requests tasks| C3
-    C2 -->|Bot commands| C3
-
-    C3 -->|Dispatches to Task domain| C4A
-    C3 -->|Dispatches to Task domain| C4B
-    C3 -->|Dispatches to Task domain| C4C
-    C10 -->|Removes unhealthy nodes| C3
-    C10 -.->|Checks health of| C4A
-    C10 -.->|Checks health of| C4B
-    C10 -.->|Checks health of| C4C
-
-    C4A -->|Authenticate user| C5
-    C4B -->|Authenticate user| C5
-    C4C -->|Authenticate user| C5
-
-    C4A -->|Retrieve / store task data| C6
-    C4B -->|Retrieve / store task data| C6
-    C4C -->|Retrieve / store task data| C6
-    C4A -->|Persist task data| C8
-    C4B -->|Persist task data| C8
-    C4C -->|Persist task data| C8
-    C4A -->|Read task data at scale| C9
-    C4B -->|Read task data at scale| C9
-    C4C -->|Read task data at scale| C9
-
-    C4A -->|Defer low-priority tasks| C7
-    C7 -->|Write deferred results| C8
-
-    C5 -->|Verify credentials| C8
-    C6 -->|Fallback on cache miss| C8
+    C1 -->|User requests| C3
+    C2 -->|Bot requests| C3
+    C3 -->|Route traffic| C4
+    C10 -->|Nodo unhealthy| C3
+    C10 -->|Health check| C4
+    C4 -->|Authenticate| C5
+    C4 -->|Defer jobs| C7
+    C4 -->|Cache-Aside| C6
+    C4 -->|SQL write/read| C8
+    C4 -->|SQL read-only| C9
     C8 -->|Async replication| C9
 ```
