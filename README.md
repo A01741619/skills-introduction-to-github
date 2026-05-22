@@ -1,21 +1,24 @@
-# Sprint 2 – Component-Based Thinking
-**Planeación de Sistemas de Software (Gpo 104)**  
+# Component-Based Thinking
+**Planeación de Sistemas de Software (Gpo 104)** 
 Gustavo García Téllez · Juan Pablo Torres · María Guadalupe Soto Acosta · Juan Pablo Gil
 
 ---
 
-## 1. Component Identification – Process and Rationale
+## 1. Component Identification process and Rationale
 
 ### Methodology: Actions/Actors Approach
 
-Se eligió el **Actions/Actors Approach** porque el sistema de gestión de tareas tiene actores claramente definidos (usuarios humanos, bots, infraestructura de OCI) con acciones concretas y bien delimitadas. Este método permite mapear directamente quién hace qué, lo que facilita identificar responsabilidades de cada componente sin ambigüedad.
+Nosotros elegimos la metodología Actors/Actions Approach, debido a que identificamos que nuestro sistema de gestión de tareas cuenta con distintos actores, como usuarios, bots e infraestructura en OCI, entre otros. Este método nos permite organizar las funciones de cada elemento, facilitando la identificación de las responsabilidades de cada componente sin ambigüedades.
 
 El proceso siguió estos pasos:
 
-1. **Identificar actores** – se listaron todos los agentes que interactúan con el sistema: el usuario final, el Telegram Bot, el administrador del sistema y los componentes de infraestructura (Load Balancer, OCI Scheduler).
-2. **Mapear acciones** – para cada actor se listaron las acciones que desencadena o recibe.
-3. **Agrupar acciones por responsabilidad** – las acciones relacionadas se agruparon para formar componentes cohesivos, respetando el principio de responsabilidad única.
-4. **Validar contra Quality Attributes** – se verificó que cada componente responde a al menos un ASR del Sprint 0 (rendimiento, disponibilidad, escalabilidad).
+1. **Identificar actores** – primero identificamos todos los elementos que interactúan con el sistema, como el usuario final, el bot de Telegram, el administrador y algunos componentes de infraestructura en OCI, por ejemplo el Load Balancer y el OCI Scheduler.  
+
+2. **Mapear acciones** – después analizamos qué acciones realiza cada actor y cuáles recibe dentro del sistema, para entender mejor cómo se comunican entre sí.  
+
+3. **Agrupar acciones por responsabilidad** – una vez identificadas las acciones, agrupamos las que estaban relacionadas para formar componentes más organizados y fáciles de mantener, procurando que cada uno tuviera una responsabilidad clara.  
+
+4. **Validar con los Quality Attributes** – finalmente verificamos que cada componente ayudara a cumplir con los ASR definidos en el Sprint 0, especialmente en aspectos como rendimiento, disponibilidad y escalabilidad.
 
 Los componentes resultantes son:
 
@@ -33,7 +36,6 @@ Los componentes resultantes son:
 | C10 | Health Monitor |
 
 ---
-
 ## 2. Flow Diagram – Actions/Actors Approach
 
 ```mermaid
