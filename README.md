@@ -112,7 +112,7 @@ flowchart LR
 
 ## 4. Partición técnica
 
-> La partición tecnica la dividicom en capas, lo que nos permite comprender de mkjejor manera cada capa de nuestra arquitectura y facilita la escabilidad.
+> La partición tecnica la dividimos en capas, lo que nos permite comprender de mejor manera cada capa de nuestra arquitectura y facilita la escabilidad.
 
 ```mermaid
 graph LR
@@ -158,7 +158,7 @@ graph LR
 
 ## 5. Partición de dominio
 
-> Esta esta organizadfa por dominios, lo que divide nuestra arquitectura en diferentes modulos independientes y centrar la logica principal en otra seccion, lon que tambien fdacilita la esccabilidad.
+> Esta esta organizada por dominios, lo que divide nuestra arquitectura en diferentes modulos independientes y centra la logica principal, lon que tambien facilita la esccabilidad.
 
 ```mermaid
 graph LR
